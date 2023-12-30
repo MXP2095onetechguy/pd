@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from enum import Enum
+from enum import StrEnum, unique
 from typing import Optional
 
-class Move(Enum):
+@unique
+class Move(StrEnum):
     COOPERATE = 'cooperate'
     BETRAY = 'betray'
 
