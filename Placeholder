@@ -1,0 +1,62 @@
+from abc import ABC, abstractmethod
+from enum import Enum
+from typing import Optional
+
+class Move(Enum):
+    COOPERATE = 'cooperate'
+    BETRAY = 'betray'
+
+class Strategy(ABC):
+    @abstractmethod
+    def decide_move(self, last_move: Optional[Move]) -> Move:
+        pass
+
+class TitForTat(Strategy):
+    def decide_move(self, last_move: Optional[Move]) -> Move:
+        if not last_move:
+            return Move.COOPERATE
+        if last_move == Move.BETRAY:
+            return Move.BETRAY
+        else:
+            return Move.COOPERATE
+
+class AlwaysBetray(Strategy):
+    def decide_move(self, last_move: Optional[Move]) -> Move:
+        return Move.BETRAY
+
+class PrisonersDilemma:
+    def __init__(self, strategy1: Strategy, strategy2: Strategy):
+        self.strategy1 = strategy1
+        self.strategy2 = strategy2
+        self.last_move1 = None
+        self.last_move2 = None
+
+    def play_round(self):
+        move1 = self.strategy1.decide_move(self.last_move2)
+        move2 = self.strategy2.decide_move(self.last_move1)
+
+        self.last_move1 = move1
+        self.last_move2 = move2
+
+        if move1 == Move.COOPERATE and move2 == Move.COOPERATE:
+            return (3, 3)
+        elif move1 == Move.BETRAY and move2 == Move.COOPERATE:
+            return (5, 0)
+        elif move1 == Move.COOPERATE and move2 == Move.BETRAY:
+            return (0, 5)
+        elif move1 == Move.BETRAY and move2 == Move.BETRAY:
+            return (1, 1)
+        else:
+            raise ValueError("Invalid moves")
+
+    def run_game(self, rounds):
+        total_payoff1 = 0
+        total_payoff2 = 0
+
+        for _ in range(rounds):
+            payoff1, payoff2 = self.play_round()
+
+            total_payoff1 += payoff1
+            total_payoff2 += payoff2
+
+        return total_payoff1, total_payoff2
